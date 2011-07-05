@@ -1,0 +1,59 @@
+#!/bin/bash
+# An utitlity to create a virutal host for apache
+# Author: "A. K. M. Mokaddim"<shiplut.net@gmail.com>
+#
+
+if [[ "$1" = "" ]]
+then
+        # no site name given. prompt for one.
+        echo Enter a name for the site
+        read name
+        if [[ "$name" = "" ]]
+        then
+                echo No name given. Site can not be created.
+                exit
+        else
+                SITE=$name
+        fi
+elif [[ "$1" = "--help" ]]
+then
+        # show a help
+        echo $0 SITE_NAME
+        exit
+else
+        SITE=$1
+fi
+
+# entry for apache virtual host file
+ENTRY=$(cat <<FINISH
+<VirtualHost *:80>
+        ServerAdmin shiplu@mokadd.im
+        DocumentRoot "/srv/sites/${SITE}"
+        ErrorLog /var/log/apache2/${SITE}.error.log
+        CustomLog /var/log/apache2/${SITE}.access.log common
+        ServerName $SITE
+        ServerAlias www.$SITE
+        <Directory "/srv/sites/${SITE}">
+                AllowOverride All
+        </Directory>
+</VirtualHost>
+FINISH
+)
+
+# create necessary directories
+if [[ ! -e "/srv/sites/${SITE}" ]]
+then
+        sudo mkdir "/srv/sites/${SITE}"
+fi
+
+# writing to hosts entry so that they fall back to localhost
+sudo sh -c "echo 127.0.0.1 $SITE >> /etc/hosts"
+
+# create the site entry for apache virtual host
+sudo sh -c "echo '$ENTRY' > /etc/apache2/sites-available/$SITE"
+
+# Enabling the site
+sudo a2ensite $SITE
+
+# Restarting apache
+sudo apache2ctl restart
