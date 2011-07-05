@@ -1,7 +1,19 @@
 #!/bin/bash
 # An utitlity to create a virutal host for apache
-# Author: "A. K. M. Mokaddim"<shiplut.net@gmail.com>
+# Author: "A. K. M. Mokaddim"<shiplu@mokadd.im>
 #
+
+# Administrator email address 
+ADMIN_MAIL=admin@domain.com
+
+# Directory where all the virtual hosts are kept
+VHOST_DIR=/srv/sites
+
+# Error log directory
+ERR_LOG_DIR=/var/log/apache2
+
+# Custom log directory
+CUS_LOG_DIR=/var/log/apache2
 
 if [[ "$1" = "" ]]
 then
@@ -27,13 +39,13 @@ fi
 # entry for apache virtual host file
 ENTRY=$(cat <<FINISH
 <VirtualHost *:80>
-        ServerAdmin shiplu@mokadd.im
-        DocumentRoot "/srv/sites/${SITE}"
-        ErrorLog /var/log/apache2/${SITE}.error.log
-        CustomLog /var/log/apache2/${SITE}.access.log common
+        ServerAdmin ${ADMIN_MAIL}
+        DocumentRoot "${VHOST_DIR}/${SITE}"
+        ErrorLog ${ERR_LOG_DIR}/${SITE}.error.log
+        CustomLog ${CUS_LOG_DIR}/${SITE}.access.log common
         ServerName $SITE
         ServerAlias www.$SITE
-        <Directory "/srv/sites/${SITE}">
+        <Directory "${VHOST_DIR}/${SITE}">
                 AllowOverride All
         </Directory>
 </VirtualHost>
@@ -41,19 +53,19 @@ FINISH
 )
 
 # create necessary directories
-if [[ ! -e "/srv/sites/${SITE}" ]]
+if [[ ! -e "${VHOST_DIR}/${SITE}" ]]
 then
-        sudo mkdir "/srv/sites/${SITE}"
+        mkdir "${VHOST_DIR}/${SITE}"
 fi
 
 # writing to hosts entry so that they fall back to localhost
-sudo sh -c "echo 127.0.0.1 $SITE >> /etc/hosts"
+sh -c "echo 127.0.0.1 $SITE >> /etc/hosts"
 
 # create the site entry for apache virtual host
-sudo sh -c "echo '$ENTRY' > /etc/apache2/sites-available/$SITE"
+sh -c "echo '$ENTRY' > /etc/apache2/sites-available/$SITE"
 
 # Enabling the site
-sudo a2ensite $SITE
+a2ensite $SITE
 
 # Restarting apache
-sudo apache2ctl restart
+apache2ctl restart

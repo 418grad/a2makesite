@@ -1,0 +1,20 @@
+REQUIREMENTS
+------------
+1. The utility needs bash not sh. So make sure you have bash installed. 
+
+
+INSTALL
+-------
+1. Copy the a2makestie file to ~/bin if ~/bin is added to your path.
+   Otherwise just copy it to /usr/local/sbin/ or /usr/sbin/
+   
+2. Make it executable (chmod +x)
+
+3. Now you are ready to use it
+
+
+
+CONFIGURATION
+-------------
+To configure it open the file using text editor. Read the comments and changes the values if necessary.
+
