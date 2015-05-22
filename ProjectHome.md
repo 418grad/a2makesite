@@ -1,0 +1,1 @@
+a2makesite creates virtual host for apache in one shot.
